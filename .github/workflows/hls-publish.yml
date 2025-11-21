@@ -62,15 +62,15 @@ jobs:
       - name: Create master playlist
         run: |
           cat > public/master.m3u8 <<EOF
-#EXTM3U
-#EXT-X-VERSION:3
-#EXT-X-STREAM-INF:BANDWIDTH=4000000,RESOLUTION=1920x1080
-1080p.m3u8
-#EXT-X-STREAM-INF:BANDWIDTH=2500000,RESOLUTION=1280x720
-720p.m3u8
-#EXT-X-STREAM-INF:BANDWIDTH=1000000,RESOLUTION=854x480
-480p.m3u8
-EOF
+          #EXTM3U
+          #EXT-X-VERSION:3
+          #EXT-X-STREAM-INF:BANDWIDTH=4000000,RESOLUTION=1920x1080
+          1080p.m3u8
+          #EXT-X-STREAM-INF:BANDWIDTH=2500000,RESOLUTION=1280x720
+          720p.m3u8
+          #EXT-X-STREAM-INF:BANDWIDTH=1000000,RESOLUTION=854x480
+          480p.m3u8
+          EOF
 
       # Disable Jekyll so .m3u8 / .ts files do NOT get stripped
       - name: Add .nojekyll
