@@ -77,12 +77,14 @@ jobs:
         run: echo > public/.nojekyll
 
       # Add MIME type overrides
-      - name: Add .htaccess for correct MIME types
+      - name: Add MIME headers for HLS
         run: |
-          cat > public/.htaccess <<EOF
-          AddType application/vnd.apple.mpegurl .m3u8
-          AddType audio/mpegurl .m3u8
-          AddType video/mp2t .ts
+          cat > public/_headers <<EOF
+          /*.m3u8
+          Content-Type: application/vnd.apple.mpegurl
+
+          /*.ts
+          Content-Type: video/mp2t
           EOF
 
       # Upload for GitHub Pages
