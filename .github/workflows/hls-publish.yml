@@ -80,10 +80,10 @@ jobs:
       - name: Add .htaccess for correct MIME types
         run: |
           cat > public/.htaccess <<EOF
-AddType application/vnd.apple.mpegurl .m3u8
-AddType audio/mpegurl .m3u8
-AddType video/mp2t .ts
-EOF
+          AddType application/vnd.apple.mpegurl .m3u8
+          AddType audio/mpegurl .m3u8
+          AddType video/mp2t .ts
+          EOF
 
       # Upload for GitHub Pages
       - name: Upload artifact
