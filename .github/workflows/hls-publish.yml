@@ -4,8 +4,8 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write    # Required to push to gh-pages
-  pages: write        # Required for GitHub Pages
+  contents: write
+  pages: write
   id-token: write
 
 jobs:
@@ -67,7 +67,7 @@ jobs:
           480p.m3u8
           EOF
 
-      - name: Upload to GitHub Pages artifact
+      - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v2
         with:
           path: public
