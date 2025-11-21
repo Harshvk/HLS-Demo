@@ -19,13 +19,13 @@ jobs:
       - name: Install FFmpeg
         run: sudo apt-get update && sudo apt-get install -y ffmpeg
 
-      # Clean & prepare publish folder
+      # Clean and prepare publish folder
       - name: Prepare output folder
         run: |
           rm -rf public
           mkdir -p public/1080p public/720p public/480p
 
-      # Encode 1080p
+      # 1080p encode
       - name: Encode 1080p
         run: |
           ffmpeg -y -i "Demo Video.mp4" -t 15 \
@@ -36,7 +36,7 @@ jobs:
             -hls_segment_filename "public/1080p/segment_%03d.ts" \
             "public/1080p.m3u8"
 
-      # Encode 720p
+      # 720p encode
       - name: Encode 720p
         run: |
           ffmpeg -y -i "Demo Video.mp4" -t 15 \
@@ -47,7 +47,7 @@ jobs:
             -hls_segment_filename "public/720p/segment_%03d.ts" \
             "public/720p.m3u8"
 
-      # Encode 480p
+      # 480p encode
       - name: Encode 480p
         run: |
           ffmpeg -y -i "Demo Video.mp4" -t 15 \
@@ -58,23 +58,36 @@ jobs:
             -hls_segment_filename "public/480p/segment_%03d.ts" \
             "public/480p.m3u8"
 
-      # Generate master playlist
-      - name: Create master.m3u8
+      # Create master playlist
+      - name: Create master playlist
         run: |
           cat > public/master.m3u8 <<EOF
-          #EXTM3U
-          #EXT-X-VERSION:3
-          #EXT-X-STREAM-INF:BANDWIDTH=4000000,RESOLUTION=1920x1080
-          1080p.m3u8
-          #EXT-X-STREAM-INF:BANDWIDTH=2500000,RESOLUTION=1280x720
-          720p.m3u8
-          #EXT-X-STREAM-INF:BANDWIDTH=1000000,RESOLUTION=854x480
-          480p.m3u8
-          EOF
+#EXTM3U
+#EXT-X-VERSION:3
+#EXT-X-STREAM-INF:BANDWIDTH=4000000,RESOLUTION=1920x1080
+1080p.m3u8
+#EXT-X-STREAM-INF:BANDWIDTH=2500000,RESOLUTION=1280x720
+720p.m3u8
+#EXT-X-STREAM-INF:BANDWIDTH=1000000,RESOLUTION=854x480
+480p.m3u8
+EOF
 
-      # Upload artifact for GitHub Pages
+      # Disable Jekyll so .m3u8 / .ts files do NOT get stripped
+      - name: Add .nojekyll
+        run: echo > public/.nojekyll
+
+      # Add MIME type overrides
+      - name: Add .htaccess for correct MIME types
+        run: |
+          cat > public/.htaccess <<EOF
+AddType application/vnd.apple.mpegurl .m3u8
+AddType audio/mpegurl .m3u8
+AddType video/mp2t .ts
+EOF
+
+      # Upload for GitHub Pages
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v4
+        uses: actions/upload-pages-artifact@v3
         with:
           path: public
 
