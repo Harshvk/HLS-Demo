@@ -28,7 +28,7 @@ jobs:
       # Encode 1080p
       - name: Encode 1080p
         run: |
-          ffmpeg -y -i "Demo Video.mp4" -t 15 \
+          ffmpeg -y -i "Demo Video.mp4" \
             -vf scale=1920:1080 \
             -c:v libx264 -b:v 4000k -preset fast \
             -c:a aac -ar 44100 \
@@ -39,7 +39,7 @@ jobs:
       # Encode 720p
       - name: Encode 720p
         run: |
-          ffmpeg -y -i "Demo Video.mp4" -t 15 \
+          ffmpeg -y -i "Demo Video.mp4" \
             -vf scale=1280:720 \
             -c:v libx264 -b:v 2500k -preset fast \
             -c:a aac -ar 44100 \
@@ -50,7 +50,7 @@ jobs:
       # Encode 480p
       - name: Encode 480p
         run: |
-          ffmpeg -y -i "Demo Video.mp4" -t 15 \
+          ffmpeg -y -i "Demo Video.mp4" \
             -vf scale=854:480 \
             -c:v libx264 -b:v 1000k -preset fast \
             -c:a aac -ar 44100 \
