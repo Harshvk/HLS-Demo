@@ -19,13 +19,13 @@ jobs:
       - name: Install FFmpeg
         run: sudo apt-get update && sudo apt-get install -y ffmpeg
 
-      # Clean and prepare publish folder
-      - name: Prepare output folder
+      # Prepare output folder
+      - name: Prepare public folder
         run: |
           rm -rf public
           mkdir -p public/1080p public/720p public/480p
 
-      # 1080p encode
+      # Encode 1080p
       - name: Encode 1080p
         run: |
           ffmpeg -y -i "Demo Video.mp4" -t 15 \
@@ -36,7 +36,7 @@ jobs:
             -hls_segment_filename "public/1080p/segment_%03d.ts" \
             "public/1080p.m3u8"
 
-      # 720p encode
+      # Encode 720p
       - name: Encode 720p
         run: |
           ffmpeg -y -i "Demo Video.mp4" -t 15 \
@@ -47,7 +47,7 @@ jobs:
             -hls_segment_filename "public/720p/segment_%03d.ts" \
             "public/720p.m3u8"
 
-      # 480p encode
+      # Encode 480p
       - name: Encode 480p
         run: |
           ffmpeg -y -i "Demo Video.mp4" -t 15 \
@@ -72,12 +72,19 @@ jobs:
           480p.m3u8
           EOF
 
-      # Disable Jekyll so .m3u8 / .ts files do NOT get stripped
+      # 🔥 Fix wrong segment paths (VERY IMPORTANT)
+      - name: Fix segment paths
+        run: |
+          sed -i 's|segment_|1080p/segment_|g' public/1080p.m3u8
+          sed -i 's|segment_|720p/segment_|g' public/720p.m3u8
+          sed -i 's|segment_|480p/segment_|g' public/480p.m3u8
+
+      # Prevent GitHub Pages from stripping files
       - name: Add .nojekyll
         run: echo > public/.nojekyll
 
-      # Add MIME type overrides
-      - name: Add MIME headers for HLS
+      # Correct MIME types for HLS
+      - name: Add _headers for MIME types
         run: |
           cat > public/_headers <<EOF
           /*.m3u8
@@ -87,7 +94,7 @@ jobs:
           Content-Type: video/mp2t
           EOF
 
-      # Upload for GitHub Pages
+      # Upload artifact for GitHub Pages
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
