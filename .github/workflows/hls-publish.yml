@@ -1,0 +1,89 @@
+name: Generate & Publish HLS
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write    # Required to push to gh-pages
+  pages: write        # Required for GitHub Pages
+  id-token: write
+
+jobs:
+  build-hls:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Install FFmpeg
+        run: sudo apt-get install -y ffmpeg
+
+      - name: Prepare folder
+        run: |
+          rm -rf public
+          mkdir -p public/1080p public/720p public/480p
+
+      - name: Encode 1080p
+        run: |
+          ffmpeg -y -i "Demo Video.mp4" -t 15 \
+            -vf scale=1920:1080 \
+            -c:v libx264 -b:v 4000k -preset fast \
+            -c:a aac -ar 44100 \
+            -f hls -hls_time 4 -hls_playlist_type vod \
+            -hls_segment_filename "public/1080p/segment_%03d.ts" \
+            "public/1080p.m3u8"
+
+      - name: Encode 720p
+        run: |
+          ffmpeg -y -i "Demo Video.mp4" -t 15 \
+            -vf scale=1280:720 \
+            -c:v libx264 -b:v 2500k -preset fast \
+            -c:a aac -ar 44100 \
+            -f hls -hls_time 4 -hls_playlist_type vod \
+            -hls_segment_filename "public/720p/segment_%03d.ts" \
+            "public/720p.m3u8"
+
+      - name: Encode 480p
+        run: |
+          ffmpeg -y -i "Demo Video.mp4" -t 15 \
+            -vf scale=854:480 \
+            -c:v libx264 -b:v 1000k -preset fast \
+            -c:a aac -ar 44100 \
+            -f hls -hls_time 4 -hls_playlist_type vod \
+            -hls_segment_filename "public/480p/segment_%03d.ts" \
+            "public/480p.m3u8"
+
+      - name: Create master playlist
+        run: |
+          cat > public/master.m3u8 <<EOF
+          #EXTM3U
+          #EXT-X-VERSION:3
+          #EXT-X-STREAM-INF:BANDWIDTH=4000000,RESOLUTION=1920x1080
+          1080p.m3u8
+          #EXT-X-STREAM-INF:BANDWIDTH=2500000,RESOLUTION=1280x720
+          720p.m3u8
+          #EXT-X-STREAM-INF:BANDWIDTH=1000000,RESOLUTION=854x480
+          480p.m3u8
+          EOF
+
+      - name: Upload to GitHub Pages artifact
+        uses: actions/upload-pages-artifact@v2
+        with:
+          path: public
+
+  deploy:
+    needs: build-hls
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v2
